@@ -2,11 +2,13 @@
 #This assignment should be completed in RStudioCloud
 #For full credit, provide answers for at least 6/9 questions
 
-#List names of students collaborating with: 
+#List names of students collaborating with:
+#Tina Vo
 
 ### SETUP: RUN THIS BEFORE STARTING ----------
 
 install.packages("tidyverse") #If not installed
+rm(list = ls())
 #Load packages
 library(tidyverse)
 paths <- c("https://raw.githubusercontent.com/jennybc/lotr-tidy/master/data/The_Fellowship_Of_The_Ring.csv",
@@ -28,7 +30,8 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #Make your repository public and paste the link here:
 
 #ANSWER
-#YOUR GITHUB LINK: 
+#YOUR GITHUB LINK:
+#https://github.com/hlee409/259-files-import
 
 ### Question 2 ---------- 
 
@@ -36,16 +39,33 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #(Yes, Vroom does this automatically but practice doing it with a loop)
 #If you did this correctly, it should look the same as ds_combined created above
 
+#ANSWER:
+
+ds_loop <- read_csv(paths[1], skip = 1, col_names = c("Film", "Race", "Female", "Male"))
+ds_loop <- ds_loop %>% filter(FALSE)
+
+for (file in paths) {
+  temp_ds <- read_csv(file, skip = 1, col_names = c("Film", "Race", "Female", "Male"))
+  ds_loop <- bind_rows(ds_loop, temp_ds)
+}
+
 ### Question 3 ----------
 
 #Use map with paths to read in the data to a single tibble called ds_map
 #If you did this correctly, it should look the same as ds_combined created above
+
+#ANSWER
+ds_map <- map_dfr(paths, ~ read_csv(.x,  skip = 1, 
+        col_names = c("Film", "Race", "Female", "Male"))) 
 
 ### Question 4 ----------
 
 #The data are in a wider-than-ideal format. 
 #Use pivot_longer to reshape the data so that sex is a column with values male/female and words is a column
 #Use ds_combined or one of the ones you created in Question 2 or 3, and save the output to ds_longer
+
+#ANSWER
+ds_longer <-pivot_longer(ds_map, cols = c("Female", "Male"), names_to = "Sex", values_to = "Words")
 
 ### Question 5 ----------
 
@@ -54,6 +74,9 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 #Merge it into ds_longer and then create a new column that expresses the words spoken as a percentage of the total
 total_words <- tibble(Film =  c("The Fellowship Of The Ring", "The Two Towers","The Return Of The King"),
                       Total = c(177277, 143436, 134462))
+
+#ANSWER
+ds_longer <- ds_longer %>% mutate(Total_Percentage = (ds_longer$Words/total_words$Total)*100)
 
 ### Question 6 ----------
 #The function below creates a graph to compare the words spoken by race/sex for a single film
@@ -66,6 +89,13 @@ words_graph <- function(df) {
     ggtitle(df$Film) + theme_minimal()
   print(p)
 }
+
+ds_list <- split(ds_longer, as.factor(ds_longer$Film))
+
+for (x in ds_list) {
+words_graph(x)
+}
+
 
 ### Question 7 ----------
 
