@@ -31,7 +31,7 @@ ds_combined <- bind_rows(ds1, ds2, ds3)
 
 #ANSWER
 #YOUR GITHUB LINK:
-#https://github.com/hlee409/259-files-import
+#https://github.com/hlee409/259-tidying-automation-homework
 
 ### Question 2 ---------- 
 
